@@ -1,35 +1,40 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import BoardComponent from "./Components/Board"
+import "./Styles/App.css"
+import { HexType, type Board, type Hex } from "./types";
+
+function generateCatanLayout(): Array<Hex> {
+    const hexes: Array<Hex> = [];
+    const mapRadius = 2; // Catan is 3 hexes wide from center to edge
+
+    for (let q = -mapRadius; q <= mapRadius; q++) {
+        let r1 = Math.max(-mapRadius, -q - mapRadius);
+        let r2 = Math.min(mapRadius, -q + mapRadius);
+        for (let r = r1; r <= r2; r++) {
+            const type: HexType = HexType.Forest
+            hexes.push({ q, r, type });
+        }
+    }
+    return hexes;
+};
 
 function App() {
-  const [count, setCount] = useState(0)
+    const b: Board = {
+        hexes: generateCatanLayout(),
+    }
+    const [board, setBoard] = useState(b);
+    const [selectedHex, setSelectedHex] = useState(null);
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    return (
+        <>
+            <div className="app">
+                <h1 className="title">Catan AI</h1>
+                <div className="board">
+                    <BoardComponent board={board} set_selcted_hex={setSelectedHex} selected_hex={selectedHex} />
+                </div>
+            </div>
+        </>
+    )
 }
 
 export default App
