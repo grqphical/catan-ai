@@ -1,29 +1,38 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BoardComponent from "./Components/Board"
 import "./Styles/App.css"
-import { HexType, type Board, type Hex } from "./types";
-
-function generateCatanLayout(): Array<Hex> {
-    const hexes: Array<Hex> = [];
-    const mapRadius = 2; // Catan is 3 hexes wide from center to edge
-
-    for (let q = -mapRadius; q <= mapRadius; q++) {
-        let r1 = Math.max(-mapRadius, -q - mapRadius);
-        let r2 = Math.min(mapRadius, -q + mapRadius);
-        for (let r = r1; r <= r2; r++) {
-            const type: HexType = HexType.Forest
-            hexes.push({ q, r, type });
-        }
-    }
-    return hexes;
-};
+import { type Board, type Hex, type HexCoordinate } from "./types";
 
 function App() {
     const b: Board = {
-        hexes: generateCatanLayout(),
+        hexes: new Map<HexCoordinate, Hex>,
     }
     const [board, setBoard] = useState(b);
     const [selectedHex, setSelectedHex] = useState(null);
+
+    useEffect(() => {
+        const fetchBoard = async () => {
+            const response = await fetch('/api/board')
+            const responseJSON = await response.json()
+            const hexes = responseJSON["hexes"]
+
+            const convertedHexes = Object.entries(hexes).reduce((acc, [key, value]) => {
+                key = key.replaceAll('(', '');
+                key = key.replaceAll(')', '')
+                const [q, r] = key.split(',').map(Number);
+                acc.set({ q, r }, value as Hex);
+                return acc;
+            }, new Map<HexCoordinate, Hex>());
+
+            setBoard({
+                hexes: convertedHexes
+            });
+        }
+
+        fetchBoard().catch(console.error)
+    }, [])
+
+    console.log(board.hexes)
 
     return (
         <>

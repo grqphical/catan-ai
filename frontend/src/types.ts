@@ -8,8 +8,7 @@ export enum HexType {
 }
 
 export interface Hex {
-    q: number
-    r: number
+    points: Array<Array<number>>
     type: HexType
 }
 
@@ -19,5 +18,5 @@ export interface HexCoordinate {
 }
 
 export interface Board {
-    hexes: Array<Hex>
+    hexes: Map<HexCoordinate, Hex>
 }

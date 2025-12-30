@@ -51,8 +51,7 @@ class Board:
                     else:
                         self.vertices[point] = Vertex([(q, r)])
     
-    @property
-    def __dict__(self) -> str:
+    def get_board_dict(self) -> str:
         hexes = {}
         vertices = {}
 

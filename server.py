@@ -9,6 +9,6 @@ app = FastAPI()
 
 app.state.board = Board()
 
-@app.get("/")
+@app.get("/board")
 async def index():
-    return app.state.__dict__
+    return app.state.board.get_board_dict()
