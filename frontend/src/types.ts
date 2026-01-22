@@ -18,5 +18,5 @@ export interface HexCoordinate {
 }
 
 export interface Board {
-    hexes: Map<HexCoordinate, Hex>
+    hexes: Map<string, Hex>
 }

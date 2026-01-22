@@ -1,11 +1,15 @@
 #root {
     font-family: sans-serif;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     background-color: #222;
     color: white;
     min-height: 100vh;
+}
+
+.app {
+    flex-grow: 1;
 }
 
 body {
@@ -17,12 +21,14 @@ body {
 .board {
     width: 800px;
     height: 800px;
+    margin: auto;
 }
 
 .title {
     text-align: center;
     font-size: 4.5rem;
     margin-bottom: 0;
+    margin-top: 10px;
 }
 
 .hex {

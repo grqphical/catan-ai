@@ -1,0 +1,7 @@
+.sidebar {
+    max-width: 500px;
+    min-width: 400px;
+    height: 100vh;
+    padding: 10px;
+    background-color: #111;
+}

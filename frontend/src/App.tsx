@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import BoardComponent from "./Components/Board"
 import "./Styles/App.css"
-import { type Board, type Hex, type HexCoordinate } from "./types";
+import { type Board, type Hex } from "./types";
+import Sidebar from "./Components/Sidebar";
 
 function App() {
     const b: Board = {
-        hexes: new Map<HexCoordinate, Hex>,
+        hexes: new Map<string, Hex>,
     }
     const [board, setBoard] = useState(b);
     const [selectedHex, setSelectedHex] = useState(null);
@@ -15,14 +16,12 @@ function App() {
             const response = await fetch('/api/board')
             const responseJSON = await response.json()
             const hexes = responseJSON["hexes"]
-
             const convertedHexes = Object.entries(hexes).reduce((acc, [key, value]) => {
-                key = key.replaceAll('(', '');
-                key = key.replaceAll(')', '')
-                const [q, r] = key.split(',').map(Number);
-                acc.set({ q, r }, value as Hex);
+                const cleanKey = key.replace(/[()]/g, '');
+                console.log(cleanKey)
+                acc.set(cleanKey, value as Hex);
                 return acc;
-            }, new Map<HexCoordinate, Hex>());
+            }, new Map<string, Hex>())
 
             setBoard({
                 hexes: convertedHexes
@@ -32,12 +31,10 @@ function App() {
         fetchBoard().catch(console.error)
     }, [])
 
-    console.log(board.hexes)
-
     return (
         <>
+            <Sidebar board={board} selected_hex={selectedHex} set_selected_hex={setSelectedHex} set_board={setBoard} />
             <div className="app">
-                <h1 className="title">Catan AI</h1>
                 <div className="board">
                     <BoardComponent board={board} set_selcted_hex={setSelectedHex} selected_hex={selectedHex} />
                 </div>

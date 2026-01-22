@@ -63,18 +63,18 @@ export default function BoardComponent(props: BoardProps) {
     return (
         <svg viewBox="-300 -300 600 600" width="100%" height="100%">
             {
-                Array.from(props.board.hexes).map(([coordinate, hex]) => {
-                    const x = size * Math.sqrt(3) * (coordinate.q + coordinate.r / 2);
-                    const y = size * (3 / 2) * coordinate.r;
-                    console.log(x, y)
+                Array.from(props.board.hexes).map(([key, hex]) => {
+                    const [q, r] = key.split(',').map(Number);
+                    const x = size * Math.sqrt(3) * (q + r / 2);
+                    const y = size * (3 / 2) * r;
                     return (
                         <polygon
-                            key={`${coordinate.q}-${coordinate.r}`}
-                            data-q={coordinate.q}
-                            data-r={coordinate.r}
+                            key={key}
+                            data-q={q}
+                            data-r={r}
                             className="hex"
                             points={getHexPoints(x, y, size)}
-                            fill={determine_tile_colour(hex.type, props.selected_hex?.q == coordinate.q && props.selected_hex.r == coordinate.r)}
+                            fill={determine_tile_colour(hex.type, props.selected_hex?.q == q && props.selected_hex.r == r)}
                             stroke="white"
                             onClick={updateSelectedHex}
                         />
