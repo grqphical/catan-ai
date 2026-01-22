@@ -36,7 +36,7 @@ function determine_tile_colour(type: HexType, is_selected: boolean) {
         case HexType.Claypit:
             return "firebrick"
         case HexType.Desert:
-            return "beige"
+            return "bisque"
         case HexType.Pasture:
             return "greenyellow"
         case HexType.Quarry:

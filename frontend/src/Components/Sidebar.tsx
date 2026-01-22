@@ -1,6 +1,6 @@
 import type { ChangeEvent } from "react"
 import "../Styles/Sidebar.css"
-import type { Board, HexCoordinate } from "../types"
+import { HexType, type Board, type HexCoordinate } from "../types"
 
 interface SidebarProps {
     board: Board
@@ -12,6 +12,46 @@ interface SidebarProps {
 function formatSelectedTileString(tile: HexCoordinate): string {
     return `(${tile.q}, ${tile.r})`
 
+}
+
+function validateBoard(board: Board): boolean {
+    let clayPitCount = 0;
+    let pastureCount = 0;
+    let quarryCount = 0;
+    let farmCount = 0;
+    let forestCount = 0;
+    let desertCount = 0;
+
+    for (const hex of board.hexes.values()) {
+        switch (hex.type) {
+            case HexType.Forest:
+                forestCount++;
+                break;
+            case HexType.Pasture:
+                pastureCount++;
+                break;
+            case HexType.Quarry:
+                quarryCount++;
+                break;
+            case HexType.Claypit: 
+                clayPitCount++;
+                break;
+            case HexType.Farm:
+                farmCount++;
+                break;
+            case HexType.Desert:
+                desertCount++;
+                break;
+            default:
+                break;
+        }
+    }
+
+    if (clayPitCount != 3 || pastureCount != 4 || quarryCount != 3 || farmCount != 4 || forestCount != 4 || desertCount != 1) {
+        return false;
+    }  else {
+        return true;
+    }
 }
 
 function SetTileForm(props: SidebarProps) {
@@ -85,10 +125,12 @@ function SetTileForm(props: SidebarProps) {
 }
 
 export default function Sidebar(props: SidebarProps) {
+    const validBoard = validateBoard(props.board);
     return (
         <div className="sidebar">
             <h1>Catan AI</h1>
             <SetTileForm selected_hex={props.selected_hex} board={props.board} set_selected_hex={props.set_selected_hex} set_board={props.set_board} />
+            <h3 className={validBoard ? "no-warning" : "warning"}>{validBoard ? "Valid Board" : "Invalid Board" }</h3>
         </div>
     )
 }

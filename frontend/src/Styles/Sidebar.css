@@ -5,3 +5,11 @@
     padding: 10px;
     background-color: #111;
 }
+
+.warning {
+    color: red;
+}
+
+.no-warning {
+    color: lime;
+}
