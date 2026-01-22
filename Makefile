@@ -11,4 +11,4 @@ run-frontend:
 
 run-server:
 	@echo "Starting Server..."
-	@source ./venv/bin/activate && fastapi dev server.py
+	@source ./venv/bin/activate && fastapi dev backend

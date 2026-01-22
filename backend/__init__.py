@@ -3,7 +3,7 @@ Catan AI - Backend Server
 """
 
 from fastapi import FastAPI, HTTPException
-from board import Board, HexType
+from backend.board import Board, HexType
 
 app = FastAPI()
 
