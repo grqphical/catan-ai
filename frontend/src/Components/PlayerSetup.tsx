@@ -52,6 +52,10 @@ export default function PlayerSetup({ gameState, setGameState }: PlayerSetupProp
             ...prevState,
             phase: GamePhase.MAP_MAKING
         }));
+
+        fetch(`/api/set-game-phase?phase=${GamePhase.MAP_MAKING}`, {
+            method: "PUT"
+        })
     }
 
     return (

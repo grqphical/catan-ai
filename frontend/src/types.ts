@@ -27,3 +27,48 @@ export interface GameState {
     phase: GamePhase
     used_colours: PlayerColour[]
 }
+
+export enum HexType {
+    FOREST = "forest",
+    PASTURE = "pasture",
+    MOUNTAIN = "mountain",
+    HILLS = "hills",
+    FARM = "farm",
+    DESERT = "desert",
+}
+
+export interface QRSCoord {
+    q: number;
+    r: number;
+    s: number;
+}
+
+export interface Tile {
+    id: string;
+    coord: QRSCoord;
+    resource: HexType;
+    number: number;
+    vertex_ids: string[];
+    edge_ids: string[];
+}
+
+export interface Vertex {
+    id: string;
+    tile_ids: string[];
+    edge_ids: string[];
+    owner: string | null;
+    building_type: string | null;
+}
+
+export interface Edge {
+    id: string;
+    tile_ids: string[];
+    vertex_ids: string[];
+    owner: string | null;
+}
+
+export interface Board {
+    tiles: Tile[];
+    vertices: Vertex[];
+    edges: Edge[];
+}

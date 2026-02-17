@@ -1,34 +1,45 @@
 import { useEffect, useState } from "react"
-import { GamePhase, type GameState } from "./types";
+import { GamePhase, HexType, type Board, type GameState } from "./types";
 import PlayerSetup from "./Components/PlayerSetup";
+import BoardRenderer from "./Components/BoardRenderer";
 
 function App() {
     const [gameState, setGameState] = useState({} as GameState);
-    const [loadedGameState, setLoadedGameState] = useState(false);
 
     useEffect(() => {
         fetch("/api/game-state")
             .then((res) => res.json())
             .then((json) => {
                 setGameState(json);
-                setLoadedGameState(true);
             }).catch((err) => console.error(err))
     }, [])
 
-    if (!loadedGameState) {
-        return (
-            <div>
-                <h1>Loading Game State...</h1>
-            </div>
-        )
-    }
+    const [board, setBoard] = useState({} as Board);
+    const [boardLoaded, setBoardLoaded] = useState(false);
+
+    useEffect(() => {
+        fetch("/api/game-state")
+            .then((res) => res.json())
+            .then((json) => {
+                setGameState(json);
+            }).catch((err) => console.error(err))
+    }, [])
+
+    useEffect(() => {
+        fetch("/api/board")
+            .then((res) => res.json())
+            .then((json) => {
+                setBoard(json);
+                setBoardLoaded(true);
+            }).catch((err) => console.error(err))
+    }, [])
 
     const renderCurrentView = () => {
         switch (gameState.phase) {
             case GamePhase.PLAYER_SETUP:
                 return <PlayerSetup gameState={gameState} setGameState={setGameState} />
             case GamePhase.MAP_MAKING:
-                return <div>WIP</div>
+                return <BoardRenderer board={board} setBoard={setBoard} boardLoaded={boardLoaded} />
         }
     }
 
