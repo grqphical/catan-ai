@@ -36,5 +36,9 @@ class GameState:
         self.players.append(Player(colour, ai, 0, 0, 0, 0, 0))
         self.used_colours.add(colour)
     
+    def reset_players(self):
+        self.players = []
+        self.used_colours = set([])
+    
     def to_dict(self) -> Dict[str, List[Player]]:
         return {"players": self.players, "phase": self.phase, "used_colours": self.used_colours}

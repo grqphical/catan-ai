@@ -24,6 +24,10 @@ async def game_state():
 async def add_player(r: AddPlayerRequest):
     app.state.game_state.add_player(r.ai, r.colour)
 
+@app.patch("/reset-players")
+async def reset_players():
+    app.state.game_state.reset_players()
+
 @app.put("/set-type")
 async def set_type(q: int, r: int, s:int, type: HexType):
     coords = (q, r)
