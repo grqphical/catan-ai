@@ -5,6 +5,7 @@ Catan AI - Backend Server
 from fastapi import FastAPI, HTTPException
 from backend.board import CatanBoard, HexType
 from backend.game_state import GameState, PlayerColour
+from backend.models import AddPlayerRequest
 
 app = FastAPI()
 
@@ -20,8 +21,8 @@ async def game_state():
     return app.state.game_state.to_dict()
 
 @app.post("/add-player")
-async def add_player(colour: PlayerColour, ai: bool):
-    app.state.game_state.add_player(ai, colour)
+async def add_player(r: AddPlayerRequest):
+    app.state.game_state.add_player(r.ai, r.colour)
 
 @app.put("/set-type")
 async def set_type(q: int, r: int, s:int, type: HexType):
