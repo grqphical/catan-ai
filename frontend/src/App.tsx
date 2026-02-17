@@ -1,44 +1,25 @@
-import { useEffect, useState } from "react";
-import BoardComponent from "./Components/Board"
-import "./Styles/App.css"
-import { type Board, type Hex } from "./types";
-import Sidebar from "./Components/Sidebar";
+import { useEffect, useState } from "react"
 
 function App() {
-    const b: Board = {
-        hexes: new Map<string, Hex>,
-    }
-    const [board, setBoard] = useState(b);
-    const [selectedHex, setSelectedHex] = useState(null);
+    const [board, setBoard] = useState<unknown>(null)
+    const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
-        const fetchBoard = async () => {
-            const response = await fetch('/api/board')
-            const responseJSON = await response.json()
-            const hexes = responseJSON["hexes"]
-            const convertedHexes = Object.entries(hexes).reduce((acc, [key, value]) => {
-                const cleanKey = key.replace(/[()]/g, '');
-                console.log(cleanKey)
-                acc.set(cleanKey, value as Hex);
-                return acc;
-            }, new Map<string, Hex>())
-
-            setBoard({
-                hexes: convertedHexes
-            });
-        }
-
-        fetchBoard().catch(console.error)
+        const controller = new AbortController()
+        fetch("/api/board", { signal: controller.signal })
+            .then((res) => {
+                if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+                return res.json()
+            })
+            .then(setBoard)
+            .catch((err) => {
+                if (err.name !== "AbortError") setError(err.message)
+            })
+        return () => controller.abort()
     }, [])
-
     return (
         <>
-            <Sidebar board={board} selected_hex={selectedHex} set_selected_hex={setSelectedHex} set_board={setBoard} />
-            <div className="app">
-                <div className="board">
-                    <BoardComponent board={board} set_selcted_hex={setSelectedHex} selected_hex={selectedHex} />
-                </div>
-            </div>
+            <p>{JSON.stringify(board)}</p>
         </>
     )
 }

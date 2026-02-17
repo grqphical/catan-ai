@@ -2,102 +2,143 @@
 Class to track the board state and related statistics
 """
 
-from dataclasses import dataclass
-from typing import Tuple, List, Dict
+from dataclasses import dataclass, field
+from typing import Tuple, List, Dict, Set
 from enum import IntEnum
-
-import math
-
-MAP_RADIUS = 2
-HEX_RADIUS = 50
-
-Coordinate = Tuple[int, int]
-
 
 class HexType(IntEnum):
     FOREST = 0
     PASTURE = 1
-    QUARRY = 2
-    CLAYPIT = 3
+    MOUNTAIN = 2
+    HILLS = 3
     FARM = 4
     DESERT = 5
+
+@dataclass
+class CubeCoordinate:
+    q: int
+    r: int
+    s: int
+
+    def __post_init__(self):
+        if self.q + self.r + self.s != 0:
+            raise ValueError("Cube coordinates must sum to 0")
+
+@dataclass
+class Tile:
+    id: str
+    coord: CubeCoordinate
+    resource: HexType
+    number: int
+    vertex_ids: List[str] = field(default_factory=list)
+    edge_ids: List[str] = field(default_factory=list)
 
 
 @dataclass
 class Vertex:
-    adjacent_hexes: List[Coordinate]
-
+    id: str
+    tile_ids: Set[str] = field(default_factory=set)
+    edge_ids: Set[str] = field(default_factory=set)
+    owner: str = None
+    building_type: str = None
 
 @dataclass
-class Hexagon:
-    type: HexType
-    points: List[Coordinate]
+class Edge:
+    id: str
+    vertex_ids: Tuple[str, str] = None
+    tile_ids: Set[str] = field(default_factory=set)
+    owner: str = None
 
 
-class Board:
-    def __init__(self):
-        self.hexes: Dict[Coordinate, Hexagon] = {}
-        self.vertices: Dict[Coordinate, Vertex] = {}
+class CatanBoard:
+    def __init__(self, radius: int = 2):
+        self.tiles: Dict[str, Tile] = {}
+        self.vertices: Dict[str, Vertex] = {}
+        self.edges: Dict[str, Edge] = {}
+        self._generate_board(radius)
 
-        for q in range(-MAP_RADIUS, MAP_RADIUS + 1, 1):
-            r1 = max(-MAP_RADIUS, -q - MAP_RADIUS)
-            r2 = min(MAP_RADIUS, -q + MAP_RADIUS)
+    def _generate_board(self, radius: int):
+        """Generates a standard hexagonal board of a given radius."""
+        tile_count = 0
+        for q in range(-radius, radius + 1):
+            for r in range(max(-radius, -q - radius), min(radius, -q + radius) + 1):
+                s = -q - r
+                tile_id = f"tile_{tile_count}"
+                coord = CubeCoordinate(q, r, s)
+                
+                new_tile = Tile(id=tile_id, coord=coord, resource="desert", number=0)
+                self.tiles[tile_id] = new_tile
+                
+                self._map_geometry_for_tile(new_tile)
+                tile_count += 1
 
-            for r in range(r1, r2 + 1, 1):
-                center_x, center_y = axial_to_pixel(q, r, HEX_RADIUS)
-                points = generate_points_from_hex(center_x, center_y, HEX_RADIUS)
-                hex = Hexagon(HexType.FOREST, points)
-                self.hexes[(q, r)] = hex
+    def _map_geometry_for_tile(self, tile: Tile):
+        """
+        Calculates the 6 vertices and 6 edges for a tile.
+        Uses a consistent naming convention to ensure shared vertices 
+        between tiles are identified as the same object.
+        """
+        current_v_ids = []
+        for i in range(6):
+            v_id = self._get_vertex_id(tile.coord, i)
+            if v_id not in self.vertices:
+                self.vertices[v_id] = Vertex(id=v_id)
+            
+            self.vertices[v_id].tile_ids.add(tile.id)
+            current_v_ids.append(v_id)
+        
+        tile.vertex_ids = current_v_ids
 
-                for point in points:
-                    if self.vertices.get(point, None) is not None:
-                        self.vertices[point].adjacent_hexes.append((q, r))
-                    else:
-                        self.vertices[point] = Vertex([(q, r)])
+        for i in range(6):
+            v1_id = current_v_ids[i]
+            v2_id = current_v_ids[(i + 1) % 6]
+            
+            edge_id = f"e_{min(v1_id, v2_id)}_{max(v1_id, v2_id)}"
+            
+            if edge_id not in self.edges:
+                self.edges[edge_id] = Edge(id=edge_id, vertex_ids=(v1_id, v2_id))
+            
+            # Link the edge to this tile and vice-versa
+            self.edges[edge_id].tile_ids.add(tile.id)
+            tile.edge_ids.append(edge_id)
+            
+            # Link the edge to its constituent vertices (Bi-directional graph)
+            self.vertices[v1_id].edge_ids.add(edge_id)
+            self.vertices[v2_id].edge_ids.add(edge_id)
 
-    def set_hexagon_type(self, new_type: HexType, coords: Coordinate):
-        if self.hexes.get(coords) == None:
-            raise ValueError(
-                f"hex with coordinate ({coords[0], coords[1]}) does not exists"
-            )
+    def _get_vertex_id(self, coord: CubeCoordinate, corner_index: int) -> str:
+        """
+        Generates a unique ID for a vertex based on the coordinates 
+        of the 3 hexes that meet there.
+        """
 
-        self.hexes[coords].type = new_type
+        neighbor_indices = [
+            (corner_index - 1) % 6, 
+            corner_index
+        ]
+        
+        # Cube neighbor offsets (standard hex math)
+        offsets = [(1, -1, 0), (1, 0, -1), (0, 1, -1), (-1, 1, 0), (-1, 0, 1), (0, -1, 1)]
+        
+        # The 3 hexes are: Current, Neighbor A, Neighbor B
+        shared_hexes = [
+            (coord.q, coord.r, coord.s),
+            (coord.q + offsets[neighbor_indices[0]][0], 
+             coord.r + offsets[neighbor_indices[0]][1], 
+             coord.s + offsets[neighbor_indices[0]][2]),
+            (coord.q + offsets[neighbor_indices[1]][0], 
+             coord.r + offsets[neighbor_indices[1]][1], 
+             coord.s + offsets[neighbor_indices[1]][2])
+        ]
+        
+        # Sort coordinates and join into a string for a unique key
+        shared_hexes.sort()
+        return "v_" + "_".join([f"{h[0]},{h[1]}" for h in shared_hexes])
 
-    def get_board_dict(self) -> str:
-        hexes = {}
-        vertices = {}
-
-        for coord, hex in self.hexes.items():
-            hexes[str(coord)] = hex
-
-        for coord, vertex in self.vertices.items():
-            vertices[str(coord)] = vertex
-
-        return {"hexes": hexes, "vertices": vertices}
-
-
-def generate_points_from_hex(
-    center_x: int, center_y: int, size: int
-) -> List[Coordinate]:
-    """Generates the vertices of a given hexagon"""
-    points = []
-
-    for i in range(6):
-        angle_deg = 60 * i - 30
-        angle_rad = (math.pi / 180) * angle_deg
-
-        points.append(
-            (
-                round(center_x + size * math.cos(angle_rad)),
-                round(center_y + size * math.sin(angle_rad)),
-            )
-        )
-
-    return points
-
-
-def axial_to_pixel(q: int, r: int, size: int) -> Tuple[float, float]:
-    """Converts axial (q, r) grid coordinates to screen pixel (x, y) coordinates."""
-    x = size * math.sqrt(3) * (q + r / 2)
-    y = size * (3 / 2) * r
-    return x, y
+    def to_dict(self):
+        """Helper to dump the board for the React frontend."""
+        return {
+            "tiles": [vars(t) for t in self.tiles.values()],
+            "vertices": [vars(v) for v in self.vertices.values()],
+            "edges": [vars(e) for e in self.edges.values()]
+        }

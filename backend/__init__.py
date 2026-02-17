@@ -3,16 +3,16 @@ Catan AI - Backend Server
 """
 
 from fastapi import FastAPI, HTTPException
-from backend.board import Board, HexType
+from backend.board import CatanBoard, HexType
 
 app = FastAPI()
 
-app.state.board = Board()
+app.state.board = CatanBoard()
 
 
 @app.get("/board")
 async def index():
-    return app.state.board.get_board_dict()
+    return app.state.board.to_dict()
 
 
 @app.put("/set-type")
