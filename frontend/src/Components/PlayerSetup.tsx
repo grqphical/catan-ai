@@ -1,5 +1,5 @@
 import type { FormEvent } from "react";
-import { PlayerColour, type GameState } from "../types";
+import { GamePhase, PlayerColour, type GameState } from "../types";
 
 interface PlayerSetupProps {
     gameState: GameState
@@ -47,6 +47,13 @@ export default function PlayerSetup({ gameState, setGameState }: PlayerSetupProp
         })
     }
 
+    const movePhases = () => {
+        setGameState((prevState) => ({
+            ...prevState,
+            phase: GamePhase.MAP_MAKING
+        }));
+    }
+
     return (
         <>
             <h3>Player Count: {gameState.players.length}</h3>
@@ -75,6 +82,7 @@ export default function PlayerSetup({ gameState, setGameState }: PlayerSetupProp
                     </div>
                 })
             }
+            <button onClick={movePhases}>Complete Player Setup</button>
         </>
     )
 }

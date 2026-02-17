@@ -4,7 +4,7 @@ Catan AI - Backend Server
 
 from fastapi import FastAPI, HTTPException
 from backend.board import CatanBoard, HexType
-from backend.game_state import GameState, PlayerColour
+from backend.game_state import GameState, GamePhase
 from backend.models import AddPlayerRequest
 
 app = FastAPI()
@@ -28,9 +28,12 @@ async def add_player(r: AddPlayerRequest):
 async def reset_players():
     app.state.game_state.reset_players()
 
-@app.put("/set-type")
-async def set_type(q: int, r: int, s:int, type: HexType):
-    coords = (q, r)
+@app.put("/set-game-phase")
+async def set_game_phase(phase: GamePhase):
+    app.state.game_state.set_phase(phase)
+
+@app.put("/set-tile-type")
+async def set_tile_type(q: int, r: int, s:int, type: HexType):
     try:
         app.state.board.set_tile_type(q, r, s, type)
     except ValueError as e:

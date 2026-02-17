@@ -27,6 +27,8 @@ function App() {
         switch (gameState.phase) {
             case GamePhase.PLAYER_SETUP:
                 return <PlayerSetup gameState={gameState} setGameState={setGameState} />
+            case GamePhase.MAP_MAKING:
+                return <div>WIP</div>
         }
     }
 

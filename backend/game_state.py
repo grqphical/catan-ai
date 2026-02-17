@@ -40,5 +40,8 @@ class GameState:
         self.players = []
         self.used_colours = set([])
     
+    def set_phase(self, phase: GamePhase):
+        self.phase = phase
+    
     def to_dict(self) -> Dict[str, List[Player]]:
         return {"players": self.players, "phase": self.phase, "used_colours": self.used_colours}
