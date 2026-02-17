@@ -5,7 +5,7 @@ Catan AI - Backend Server
 from fastapi import FastAPI, HTTPException
 from backend.board import CatanBoard, HexType
 from backend.game_state import GameState, GamePhase
-from backend.models import AddPlayerRequest
+from backend.models import AddPlayerRequest, BoardResponse
 
 app = FastAPI()
 
@@ -13,7 +13,7 @@ app.state.board = CatanBoard()
 app.state.game_state = GameState()
 
 @app.get("/board")
-async def index():
+async def get_board() -> BoardResponse:
     return app.state.board.to_dict()
 
 @app.get("/game-state")
