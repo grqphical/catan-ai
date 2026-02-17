@@ -1,4 +1,5 @@
-import type { HexType } from "../types"
+import type React from "react";
+import { HexType } from "../types"
 
 const HEX_RADIUS = 50;
 
@@ -6,6 +7,8 @@ interface HexagonProps {
     q: number
     r: number
     type: HexType
+    selected: boolean
+    handleHexClick: React.MouseEventHandler<SVGPolygonElement>
 }
 
 function getHexPoints(q: number, r: number, radius: number): string {
@@ -26,6 +29,25 @@ function getHexPoints(q: number, r: number, radius: number): string {
     return points.join(" ");
 }
 
-export default function Hexagon({ q, r, type }: HexagonProps) {
-    return <polygon points={getHexPoints(q, r, HEX_RADIUS)} fill="blue" stroke="black"></polygon>
+function getColourByHexType(type: HexType) {
+    switch (type) {
+        case HexType.DESERT:
+            return "#cdad59"
+        case HexType.FOREST:
+            return "#27770f"
+        case HexType.FARM:
+            return "#f0b83d"
+        case HexType.HILLS:
+            return "#cf4d19"
+        case HexType.MOUNTAIN:
+            return "#8c838a"
+        case HexType.PASTURE:
+            return "#aae634"
+        default:
+            return "#000000"
+    }
+}
+
+export default function Hexagon({ q, r, type, handleHexClick, selected }: HexagonProps) {
+    return <polygon points={getHexPoints(q, r, HEX_RADIUS)} fill={selected ? "white" : getColourByHexType(type)} stroke="black" onClick={handleHexClick} data-q={q} data-r={r}></polygon>
 }

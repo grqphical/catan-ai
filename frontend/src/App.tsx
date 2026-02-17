@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
-import { GamePhase, HexType, type Board, type GameState } from "./types";
-import PlayerSetup from "./Components/PlayerSetup";
-import BoardRenderer from "./Components/BoardRenderer";
+import { GamePhase, type Board, type GameState } from "./types";
+import PlayerSetup from "./Views/PlayerSetup";
+import MapSetup from "./Views/MapSetup";
 
 function App() {
     const [gameState, setGameState] = useState({} as GameState);
@@ -39,7 +39,7 @@ function App() {
             case GamePhase.PLAYER_SETUP:
                 return <PlayerSetup gameState={gameState} setGameState={setGameState} />
             case GamePhase.MAP_MAKING:
-                return <BoardRenderer board={board} setBoard={setBoard} boardLoaded={boardLoaded} />
+                return <MapSetup board={board} setBoard={setBoard} boardLoaded={boardLoaded} gameState={gameState} setGameState={setGameState} />
         }
     }
 
