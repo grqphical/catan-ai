@@ -24,9 +24,9 @@ async def add_player(colour: PlayerColour, ai: bool):
     app.state.game_state.add_player(ai, colour)
 
 @app.put("/set-type")
-async def set_type(q: int, r: int, type: HexType):
+async def set_type(q: int, r: int, s:int, type: HexType):
     coords = (q, r)
     try:
-        app.state.board.set_hexagon_type(type, coords)
+        app.state.board.set_tile_type(q, r, s, type)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))

@@ -142,3 +142,12 @@ class CatanBoard:
             "vertices": [vars(v) for v in self.vertices.values()],
             "edges": [vars(e) for e in self.edges.values()]
         }
+    
+    def set_tile_type(self, q: int, r: int, s: int, resource: HexType):
+        """Sets the resource type for a tile at the given cube coordinates."""
+        coord = CubeCoordinate(q, r, s)
+        for tile in self.tiles.values():
+            if tile.coord == coord:
+                tile.resource = resource
+                return
+        raise KeyError(f"No tile found at coordinates ({q}, {r}, {s})")
