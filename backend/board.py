@@ -4,15 +4,15 @@ Class to track the board state and related statistics
 
 from dataclasses import dataclass, field
 from typing import Tuple, List, Dict, Set
-from enum import IntEnum
+from enum import StrEnum
 
-class HexType(IntEnum):
-    FOREST = 0
-    PASTURE = 1
-    MOUNTAIN = 2
-    HILLS = 3
-    FARM = 4
-    DESERT = 5
+class HexType(StrEnum):
+    FOREST = "forest"
+    PASTURE = "pasture"
+    MOUNTAIN = "mountain"
+    HILLS = "hills"
+    FARM = "farm"
+    DESERT = "desert"
 
 @dataclass
 class CubeCoordinate:
