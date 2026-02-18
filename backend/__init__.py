@@ -5,7 +5,7 @@ Catan AI - Backend Server
 from fastapi import FastAPI, HTTPException
 from backend.board import CatanBoard, HexType
 from backend.game_state import GameState, GamePhase
-from backend.models import AddPlayerRequest, BoardResponse
+from backend.models import AddPlayerRequest, BoardResponse, BoardValidationResponse
 
 app = FastAPI()
 
@@ -15,6 +15,12 @@ app.state.game_state = GameState()
 @app.get("/board")
 async def get_board() -> BoardResponse:
     return app.state.board.to_dict()
+
+@app.get("/validate-board")
+async def validate_board() -> BoardValidationResponse:
+    return {
+        "valid": app.state.board.is_valid_board()
+    }
 
 @app.get("/game-state")
 async def game_state():

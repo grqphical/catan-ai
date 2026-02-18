@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import BoardRenderer from "../Components/BoardRenderer"
 import { HexType, type Board, type GameState, type Tile } from "../types"
 
@@ -12,6 +12,16 @@ interface MapSetupProps {
 
 export default function MapSetup({ board, setBoard, boardLoaded, gameState, setGameState }: MapSetupProps) {
     const [selectedTile, setSelectedTile] = useState({} as Tile)
+
+    const [validBoard, setValidBoard] = useState(false);
+
+    useEffect(() => {
+        fetch("/api/validate-board")
+            .then((res) => res.json())
+            .then((json) => {
+                setValidBoard(json.valid);
+            }).catch((err) => console.error(err))
+    }, [selectedTile])
 
     const handleTileTypeChange = (event: React.ChangeEvent) => {
         event.preventDefault();
@@ -29,11 +39,16 @@ export default function MapSetup({ board, setBoard, boardLoaded, gameState, setG
             ...board,
             tiles: updatedBoard
         })
+
+        fetch(`/api/set-tile-type?q=${selectedTile.coord.q}&r=${selectedTile.coord.r}&s=${selectedTile.coord.s}&type=${newResource}`, {
+            method: "PUT"
+        })
     }
 
     return (
         <>
             <BoardRenderer board={board} boardLoaded={boardLoaded} setSelectedTile={setSelectedTile} selectedTile={selectedTile} />
+            <p>Is valid board? {validBoard ? "yes" : "no"}</p>
             <div>
                 <h2>Current Selected Tile: {selectedTile.coord !== undefined ? `(${selectedTile.coord.q}, ${selectedTile.coord.r}, ${selectedTile.coord.s})` : "None"}</h2>
                 <select name="tileType" id="tileType" value={selectedTile.resource} onChange={handleTileTypeChange}>

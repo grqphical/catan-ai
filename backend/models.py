@@ -37,3 +37,6 @@ class BoardResponse(BaseModel):
     tiles: List[Tile]
     vertices: List[Vertex]
     edges: List[Edge]
+
+class BoardValidationResponse(BaseModel):
+    valid: bool

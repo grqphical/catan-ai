@@ -143,11 +143,39 @@ class CatanBoard:
             "edges": [vars(e) for e in self.edges.values()]
         }
     
+    def is_valid_board(self):
+        hill_count = 3
+        pasture_count = 4
+        mountain_count = 3
+        field_count = 4
+        forest_count = 4
+        desert_count = 1
+
+        for tile in self.tiles.values():
+            match tile.resource:
+                case HexType.FOREST:
+                    forest_count -= 1
+                case HexType.HILLS:
+                    hill_count -= 1
+                case HexType.PASTURE:
+                    pasture_count -= 1
+                case HexType.MOUNTAIN:
+                    mountain_count -= 1
+                case HexType.FARM:
+                    field_count -= 1
+                case HexType.DESERT:
+                    desert_count -= 1
+            
+            if hill_count < 0 or pasture_count < 0 or mountain_count < 0 or field_count < 0 or forest_count < 0 or desert_count < 0:
+                return False
+        
+        return hill_count == 0 and pasture_count == 0 and mountain_count == 0 and field_count == 0 and forest_count == 0 and desert_count == 0
+
     def set_tile_type(self, q: int, r: int, s: int, resource: HexType):
         """Sets the resource type for a tile at the given cube coordinates."""
-        coord = CubeCoordinate(q, r, s)
         for tile in self.tiles.values():
-            if tile.coord == coord:
+            if tile.coord.q == q and tile.coord.r == r and tile.coord.s == s:
                 tile.resource = resource
+                print(tile.resource)
                 return
         raise KeyError(f"No tile found at coordinates ({q}, {r}, {s})")
